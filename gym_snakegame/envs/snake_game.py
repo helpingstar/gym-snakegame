@@ -25,7 +25,7 @@ snake
     5 : target
 """
 class SnakeGameEnv(gym.Env):
-    metadata = {"render_modes": ["human", "rgb_array", "ansi"], "render_fps": 4}
+    metadata = {"render_modes": ["human", "rgb_array", "ansi"], "render_fps": 10}
 
     def __init__(self, render_mode=None, size=15, n_target=1):
 
@@ -33,9 +33,11 @@ class SnakeGameEnv(gym.Env):
         assert n_target > 0
 
         self.size = size  # The size of the square grid
-        self.window_size = 512  # The size of the PyGame window
+        self.window_width = 600  # The size of the PyGame window
+        self.window_height = 700
+        self.window_diff = self.window_height - self.window_width
         self.n_target = n_target
-
+        self._n_iteration = 0
         # space
         self.observation_space = spaces.Box(
             low=0, high=5, shape=(size, size), dtype=np.uint8)
@@ -73,6 +75,9 @@ class SnakeGameEnv(gym.Env):
             self.board[x, y] = 0
         self.board[self.snake[-1][0], self.snake[-1][1]] = 3
 
+        # update iteration
+        self._n_iteration += 1
+        self._n_step = 0
 
         self._score = 0
 
@@ -108,6 +113,8 @@ class SnakeGameEnv(gym.Env):
 
         direction = self._action_to_direction[action]
 
+        # update iteration
+        self._n_step += 1
 
         current_head = self.snake[-1]
         current_tail = self.snake[0]
@@ -183,14 +190,24 @@ class SnakeGameEnv(gym.Env):
             pygame.init()
             pygame.display.init()
             self.window = pygame.display.set_mode(
-                (self.window_size, self.window_size)
+                (self.window_width, self.window_height)
             )
         if self.clock is None and self.render_mode == "human":
             self.clock = pygame.time.Clock()
 
-        canvas = pygame.Surface((self.window_size, self.window_size))
+        canvas = pygame.Surface((self.window_width, self.window_height))
         canvas.fill((0, 0, 0))
-        square_size = self.window_size // self.size
+        square_size = self.window_width // self.size
+        font_size = self.window_diff // 2
+        myFont = pygame.font.SysFont(None, font_size)
+        score_render_text = myFont.render(f'score: {self._score}', True, (255, 255, 255))
+        n_iter_render_text = myFont.render(f'iter: {self._n_iteration}', True, (255, 255, 255))
+        n_step_render_text = myFont.render(f'step: {self._n_step}', True, (255, 255, 255))
+
+        canvas.blit(score_render_text, (self.window_width // 15 * 1, self.window_diff // 2 - font_size // 2))
+        canvas.blit(n_iter_render_text, (self.window_width // 15 * 6, self.window_diff // 2 - font_size // 2))
+        canvas.blit(n_step_render_text, (self.window_width // 15 * 11, self.window_diff // 2 - font_size // 2))
+
 
         for r in range(self.size):
             for c in range(self.size):
@@ -199,17 +216,26 @@ class SnakeGameEnv(gym.Env):
                         canvas,
                         (255, 255, 255),
                         pygame.Rect(
-                            square_size * c, square_size * r, square_size, square_size
+                            square_size * c, self.window_diff + square_size * r, square_size, square_size
                         ),
                     )
+                # blank
                 elif self.board[r, c] == 1:
-                    continue
+                    pygame.draw.rect(
+                        canvas,
+                        (200, 200, 200),
+                        pygame.Rect(
+                            square_size * c, self.window_diff + square_size * r, square_size, square_size
+                        ),
+                        1
+                    )
+                # head
                 elif self.board[r, c] == 3:
                     pygame.draw.rect(
                         canvas,
                         (255, 0, 0),
                         pygame.Rect(
-                            square_size * c, square_size * r, square_size, square_size
+                            square_size * c, self.window_diff + square_size * r, square_size, square_size
                         ),
                     )
                 # self.board[r, c] == 5:
@@ -218,7 +244,7 @@ class SnakeGameEnv(gym.Env):
                         canvas,
                         (0, 255, 0),
                         pygame.Rect(
-                            square_size * c, square_size * r, square_size, square_size
+                            square_size * c, self.window_diff + square_size * r, square_size, square_size
                         ),
                     )
 
