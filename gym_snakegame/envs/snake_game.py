@@ -186,8 +186,8 @@ class SnakeGameEnv(gym.Env):
 
 
     def _render_frame(self):
+        pygame.init()
         if self.window is None and self.render_mode == "human":
-            pygame.init()
             pygame.display.init()
             self.window = pygame.display.set_mode(
                 (self.window_width, self.window_height)
