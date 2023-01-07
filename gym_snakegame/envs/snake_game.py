@@ -5,6 +5,9 @@ import pygame
 import gymnasium as gym
 from gymnasium import spaces
 
+
+# TODO : literal observation to CONST VARIABLE
+
 """
 
 [x, y]
