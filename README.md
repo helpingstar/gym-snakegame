@@ -10,7 +10,7 @@ A gymnasium-based RL environment for learning the snake game.
 
 # Installation
 ```bash
-git clone https://github.com/helpingstar/gym-woodoku.git
+https://github.com/helpingstar/gym-snakegame.git
 cd gym-woodoku
 pip install -r requirements.txt
 pip install -e .
