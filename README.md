@@ -1,6 +1,8 @@
 # gym-snakegame
 A gymnasium-based RL environment for learning the snake game.
 
+// TODO : game video
+
 |                   |                  |
 |-------------------|------------------|
 | Action            | Discrete(4)      |
