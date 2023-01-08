@@ -71,13 +71,12 @@ class SnakeGameEnv(gym.Env):
         for i in range(3):
             self.snake.appendleft(np.array([self.size//2, self.size//2-i]))
 
-        self._place_target(initial=True)
-
-
         for x, y in self.snake:
             self.board[x, y] = 0
         self.board[self.snake[-1][0], self.snake[-1][1]] = 3
 
+        self._place_target(initial=True)
+        
         # update iteration
         self._n_iteration += 1
         self._n_step = 0
