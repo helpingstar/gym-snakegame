@@ -43,7 +43,7 @@ class SnakeGameEnv(gym.Env):
         self._n_iteration = 0
         # space
         self.observation_space = spaces.Box(
-            low=0, high=5, shape=(size, size), dtype=np.uint8)
+            low=0, high=5, shape=(size, size), dtype=np.float32)
         self.action_space = spaces.Discrete(4)
 
         self._action_to_direction = {
@@ -106,7 +106,7 @@ class SnakeGameEnv(gym.Env):
 
 
     def _get_obs(self):
-        return self.board
+        return self.board.astype(np.float32)
 
     def _get_info(self):
         return {"snake_length": len(self.snake)}
