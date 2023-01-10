@@ -8,8 +8,12 @@ from gymnasium import spaces
 
 # TODO : literal observation to CONST VARIABLE
 
-"""
+SNAKE_BODY = 0
+BLANK = 1
+SNAKE_HEAD = 3
+TARGET = 5
 
+"""
 [x, y]
     x : row
     y : column
@@ -72,11 +76,11 @@ class SnakeGameEnv(gym.Env):
             self.snake.appendleft(np.array([self.size//2, self.size//2-i]))
 
         for x, y in self.snake:
-            self.board[x, y] = 0
-        self.board[self.snake[-1][0], self.snake[-1][1]] = 3
+            self.board[x, y] = SNAKE_BODY
+        self.board[self.snake[-1][0], self.snake[-1][1]] = SNAKE_HEAD
 
         self._place_target(initial=True)
-        
+
         # update iteration
         self._n_iteration += 1
         self._n_step = 0
@@ -96,13 +100,13 @@ class SnakeGameEnv(gym.Env):
         if initial:
             target_list = target_candidate[self.np_random.choice(len(target_candidate), self.n_target)]
             for x, y in target_list:
-                self.board[x, y] = 5
+                self.board[x, y] = TARGET
         else:
             if target_candidate.size == 0:
                 return
             else:
                 new_target = target_candidate[self.np_random.choice(len(target_candidate))]
-                self.board[new_target[0], new_target[1]] = 5
+                self.board[new_target[0], new_target[1]] = TARGET
 
 
     def _get_obs(self):
@@ -150,8 +154,8 @@ class SnakeGameEnv(gym.Env):
                 self._place_target()
                 terminated = False
             self.snake.append(next_head)
-            self.board[current_head[0], current_head[1]] = 0
-            self.board[next_head[0], next_head[1]] = 3
+            self.board[current_head[0], current_head[1]] = SNAKE_BODY
+            self.board[next_head[0], next_head[1]] = SNAKE_HEAD
 
 
         observation = self._get_obs()
@@ -172,16 +176,16 @@ class SnakeGameEnv(gym.Env):
         for r in range(self.size):
             for c in range(self.size):
                 # snake
-                if self.board[r, c] == 0:
+                if self.board[r, c] == SNAKE_BODY:
                     print("□", end="")
                 # blank
-                elif self.board[r, c] == 1:
+                elif self.board[r, c] == BLANK:
                     print("0", end="")
                 # head
-                elif self.board[r, c] == 3:
+                elif self.board[r, c] == SNAKE_HEAD:
                     print("■", end="")
                 # target
-                elif self.board[r, c] == 5:
+                elif self.board[r, c] == TARGET:
                     print("★", end="")
             print()
         print('-'*self.size)
@@ -213,7 +217,7 @@ class SnakeGameEnv(gym.Env):
 
         for r in range(self.size):
             for c in range(self.size):
-                if self.board[r, c] == 0:
+                if self.board[r, c] == SNAKE_BODY:
                     pygame.draw.rect(
                         canvas,
                         (255, 255, 255),
@@ -222,7 +226,7 @@ class SnakeGameEnv(gym.Env):
                         ),
                     )
                 # blank
-                elif self.board[r, c] == 1:
+                elif self.board[r, c] == BLANK:
                     pygame.draw.rect(
                         canvas,
                         (200, 200, 200),
@@ -232,7 +236,7 @@ class SnakeGameEnv(gym.Env):
                         1
                     )
                 # head
-                elif self.board[r, c] == 3:
+                elif self.board[r, c] == SNAKE_HEAD:
                     pygame.draw.rect(
                         canvas,
                         (255, 0, 0),
