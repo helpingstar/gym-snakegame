@@ -10,10 +10,19 @@ A gymnasium-based RL environment for learning the snake game.
 
 # Installation
 ```bash
-https://github.com/helpingstar/gym-snakegame.git
-cd gym-woodoku
+git clone https://github.com/helpingstar/gym-snakegame.git
+cd gym-snakegame
 pip install -r requirements.txt
 pip install -e .
+```
+
+## Colab
+
+```bash
+!git clone https://github.com/helpingstar/gym-snakegame.git
+%cd gym-snakegame
+!pip install -r requirements.txt
+!pip install -e .
 ```
 
 # Usage
