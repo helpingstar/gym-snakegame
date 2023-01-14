@@ -204,15 +204,15 @@ class SnakeGameEnv(gym.Env):
         canvas = pygame.Surface((self.window_width, self.window_height))
         canvas.fill((0, 0, 0))
         square_size = self.window_width // self.size
-        font_size = self.window_diff // 2
-        myFont = pygame.font.SysFont(None, font_size)
+        font_size = self.window_diff // 3
+        myFont = pygame.font.SysFont('consolas', font_size, bold=True)
         score_render_text = myFont.render(f'score: {self._score}', True, (255, 255, 255))
         n_iter_render_text = myFont.render(f'iter: {self._n_iteration}', True, (255, 255, 255))
         n_step_render_text = myFont.render(f'step: {self._n_step}', True, (255, 255, 255))
 
-        canvas.blit(score_render_text, (self.window_width // 15 * 1, self.window_diff // 2 - font_size // 2))
-        canvas.blit(n_iter_render_text, (self.window_width // 15 * 6, self.window_diff // 2 - font_size // 2))
-        canvas.blit(n_step_render_text, (self.window_width // 15 * 11, self.window_diff // 2 - font_size // 2))
+        canvas.blit(score_render_text, (self.window_width // 30 * 1, self.window_diff // 2 - font_size // 2))
+        canvas.blit(n_iter_render_text, (self.window_width // 30 * 10, self.window_diff // 2 - font_size // 2))
+        canvas.blit(n_step_render_text, (self.window_width // 30 * 21, self.window_diff // 2 - font_size // 2))
 
 
         for r in range(self.size):
