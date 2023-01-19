@@ -32,7 +32,7 @@ snake
     5 : target
 """
 class SnakeGameEnv(gym.Env):
-    metadata = {"render_modes": ["human", "rgb_array", "ansi", None], "render_fps": 10}
+    metadata = {"render_modes": ["human", "rgb_array", "ansi", "None"], "render_fps": 10}
 
     def __init__(self, render_mode=None, size=15, n_target=1):
 
@@ -168,7 +168,7 @@ class SnakeGameEnv(gym.Env):
 
     def render(self):
 
-        if self.render_mode is None:
+        if self.render_mode == "None":
             return
 
         if self.render_mode == "rgb_array":
