@@ -32,7 +32,7 @@ snake
     5 : target
 """
 class SnakeGameEnv(gym.Env):
-    metadata = {"render_modes": ["human", "rgb_array", "ansi"], "render_fps": 10}
+    metadata = {"render_modes": ["human", "rgb_array", "ansi", None], "render_fps": 10}
 
     def __init__(self, render_mode=None, size=15, n_target=1):
 
@@ -59,7 +59,7 @@ class SnakeGameEnv(gym.Env):
 
         self._snake_checker = np.ones((size, size), dtype=np.uint8)
 
-        assert render_mode is None or render_mode in self.metadata["render_modes"]
+        assert render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self.window = None
         self.clock = None
@@ -167,9 +167,14 @@ class SnakeGameEnv(gym.Env):
         return observation, reward, terminated, False, info
 
     def render(self):
+
+        if self.render_mode is None:
+            return
+
         if self.render_mode == "rgb_array":
             return self._render_frame()
-        elif self.render_mode == "ansi":
+
+        if self.render_mode == "ansi":
             return self._render_ansi()
 
     def _render_ansi(self):
@@ -267,3 +272,7 @@ class SnakeGameEnv(gym.Env):
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2)
             )
+    def close(self):
+        if self.window is not None:
+            pygame.display.quit()
+            pygame.quit()
