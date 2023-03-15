@@ -1,12 +1,13 @@
 # gym-snakegame
 A gymnasium-based RL environment for learning the snake game.
 
-// TODO : game video
+![snakegame5x5](https://user-images.githubusercontent.com/54899900/225275703-646f8f42-62dd-4b0d-b527-aaf93ba6e1f7.gif)
 
-|                   |                  |
-|-------------------|------------------|
-| Action            | Discrete(4)      |
-| Observation Shape | (`size`, `size`) |
+You can make a game with a grid size larger than 5x5.
+
+| Action Space | Observation Space |
+|--------------|-------------------|
+|  Discrete(4) | (`size`, `size`)  |
 
 # Installation
 ```bash
