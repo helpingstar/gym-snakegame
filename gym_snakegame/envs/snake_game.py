@@ -197,27 +197,33 @@ class SnakeGameEnv(gym.Env):
 
 
     def _render_frame(self):
-        pygame.init()
-        if self.window is None and self.render_mode == "human":
-            pygame.display.init()
-            self.window = pygame.display.set_mode(
-                (self.window_width, self.window_height)
-            )
+        pygame.font.init()
+        if self.window is None:
+            pygame.init()
+            self.square_size = self.window_width // self.size
+            self.font_size = self.window_diff // 3
+            if self.render_mode == "human":
+                pygame.display.init()
+                # (width, height)
+                self.window = pygame.display.set_mode(
+                    (self.window_width, self.window_height)
+                )
+            else:
+                self.window = pygame.Surface((self.window_width, self.window_height))
+
         if self.clock is None and self.render_mode == "human":
             self.clock = pygame.time.Clock()
 
         canvas = pygame.Surface((self.window_width, self.window_height))
         canvas.fill((0, 0, 0))
-        square_size = self.window_width // self.size
-        font_size = self.window_diff // 3
-        myFont = pygame.font.SysFont('consolas', font_size, bold=True)
+        myFont = pygame.font.SysFont('consolas', self.font_size, bold=True)
         score_render_text = myFont.render(f'score: {self._score}', True, (255, 255, 255))
         n_iter_render_text = myFont.render(f'iter: {self._n_iteration}', True, (255, 255, 255))
         n_step_render_text = myFont.render(f'step: {self._n_step}', True, (255, 255, 255))
 
-        canvas.blit(score_render_text, (self.window_width // 30 * 1, self.window_diff // 2 - font_size // 2))
-        canvas.blit(n_iter_render_text, (self.window_width // 30 * 10, self.window_diff // 2 - font_size // 2))
-        canvas.blit(n_step_render_text, (self.window_width // 30 * 21, self.window_diff // 2 - font_size // 2))
+        canvas.blit(score_render_text, (self.window_width // 30 * 1, self.window_diff // 2 - self.font_size // 2))
+        canvas.blit(n_iter_render_text, (self.window_width // 30 * 10, self.window_diff // 2 - self.font_size // 2))
+        canvas.blit(n_step_render_text, (self.window_width // 30 * 21, self.window_diff // 2 - self.font_size // 2))
 
 
         for r in range(self.size):
@@ -227,7 +233,7 @@ class SnakeGameEnv(gym.Env):
                         canvas,
                         (255, 255, 255),
                         pygame.Rect(
-                            square_size * c, self.window_diff + square_size * r, square_size, square_size
+                            self.square_size * c, self.window_diff + self.square_size * r, self.square_size, self.square_size
                         ),
                     )
                 # blank
@@ -236,7 +242,7 @@ class SnakeGameEnv(gym.Env):
                         canvas,
                         (200, 200, 200),
                         pygame.Rect(
-                            square_size * c, self.window_diff + square_size * r, square_size, square_size
+                            self.square_size * c, self.window_diff + self.square_size * r, self.square_size, self.square_size
                         ),
                         1
                     )
@@ -246,7 +252,7 @@ class SnakeGameEnv(gym.Env):
                         canvas,
                         (255, 0, 0),
                         pygame.Rect(
-                            square_size * c, self.window_diff + square_size * r, square_size, square_size
+                            self.square_size * c, self.window_diff + self.square_size * r, self.square_size, self.square_size
                         ),
                     )
                 # self.board[r, c] == 5:
@@ -255,7 +261,7 @@ class SnakeGameEnv(gym.Env):
                         canvas,
                         (0, 255, 0),
                         pygame.Rect(
-                            square_size * c, self.window_diff + square_size * r, square_size, square_size
+                            self.square_size * c, self.window_diff + self.square_size * r, self.square_size, self.square_size
                         ),
                     )
 
