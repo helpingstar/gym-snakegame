@@ -95,7 +95,7 @@ class SnakeGameEnv(gym.Env):
 
         return observation, info
 
-    def _place_target(self, initial=False):
+    def _place_target(self, initial: bool = False) -> None:
         target_candidate = np.argwhere(self.board == 1)
         if initial:
             target_list = target_candidate[self.np_random.choice(len(target_candidate), self.n_target)]
@@ -108,14 +108,13 @@ class SnakeGameEnv(gym.Env):
                 new_target = target_candidate[self.np_random.choice(len(target_candidate))]
                 self.board[new_target[0], new_target[1]] = TARGET
 
-
     def _get_obs(self):
         return self.board.astype(np.float32)
 
     def _get_info(self):
         return {"snake_length": len(self.snake)}
 
-    def step(self, action):
+    def step(self, action: int):
 
         direction = self._action_to_direction[action]
 
@@ -156,7 +155,6 @@ class SnakeGameEnv(gym.Env):
             self.snake.append(next_head)
             self.board[current_head[0], current_head[1]] = SNAKE_BODY
             self.board[next_head[0], next_head[1]] = SNAKE_HEAD
-
 
         observation = self._get_obs()
         info = self._get_info()
