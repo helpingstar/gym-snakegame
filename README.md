@@ -48,12 +48,31 @@ env.close()
 
 # Observation
 
+Observation Space : `Box(0.0, 5.0, (5, 5), float32)`
+
 * `0` : snake
 * `1` : blank
 * `3` : head
 * `5` : target
 
+If you want to reshape an observation I recommend you use [`gymnasium.experimental.wrappers.ReshapeObservationV0`](https://gymnasium.farama.org/api/experimental/wrappers/#gymnasium.experimental.wrappers.ReshapeObservationV0).
+
+```python
+>>> import gym_snakegame
+>>> import gymnasium as gym
+>>> from gymnasium.experimental.wrappers import ReshapeObservationV0
+>>> env = gym.make("gym_snakegame/SnakeGame-v0", size=5, n_target=1)
+>>> env.observation_space.shape
+(5, 5)
+>>> env = ReshapeObservationV0(env, (1, 5, 5))
+>>> env.observation_space.shape
+(1, 5, 5)
+```
+
+
 # Action
+
+Action Space : `Discrete(4)`
 
 * `0` : down
 * `1` : right
