@@ -48,7 +48,6 @@ class SnakeGameEnv(gym.Env):
         self.window_height = 700
         self.window_diff = self.window_height - self.window_width
         self.n_target = n_target
-        self._n_iteration = 0
         # space
         self.observation_space = spaces.Box(
             low=0, high=5, shape=(size, size), dtype=np.float32
@@ -86,7 +85,6 @@ class SnakeGameEnv(gym.Env):
         self._place_target(initial=True)
 
         # update iteration
-        self._n_iteration += 1
         self._n_step = 0
 
         self._score = 0
@@ -227,9 +225,6 @@ class SnakeGameEnv(gym.Env):
         score_render_text = myFont.render(
             f"score: {self._score}", True, (255, 255, 255)
         )
-        n_iter_render_text = myFont.render(
-            f"iter: {self._n_iteration}", True, (255, 255, 255)
-        )
         n_step_render_text = myFont.render(
             f"step: {self._n_step}", True, (255, 255, 255)
         )
@@ -237,10 +232,6 @@ class SnakeGameEnv(gym.Env):
         canvas.blit(
             score_render_text,
             (self.window_width // 30 * 1, self.window_diff // 2 - self.font_size // 2),
-        )
-        canvas.blit(
-            n_iter_render_text,
-            (self.window_width // 30 * 10, self.window_diff // 2 - self.font_size // 2),
         )
         canvas.blit(
             n_step_render_text,
