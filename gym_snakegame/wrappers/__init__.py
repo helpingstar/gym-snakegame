@@ -1,0 +1,1 @@
+from gym_snakegame.wrappers.reward_converter import RewardConverter
