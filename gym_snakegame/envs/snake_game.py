@@ -235,7 +235,7 @@ class SnakeGameEnv(gym.Env):
         )
         canvas.blit(
             n_step_render_text,
-            (self.window_width // 30 * 21, self.window_diff // 2 - self.font_size // 2),
+            (self.window_width // 30 * 15, self.window_diff // 2 - self.font_size // 2),
         )
 
         for r in range(self.board_size):
