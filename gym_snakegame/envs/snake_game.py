@@ -39,18 +39,18 @@ class SnakeGameEnv(gym.Env):
         "render_fps": 10,
     }
 
-    def __init__(self, render_mode=None, size=15, n_target=1):
-        assert size >= 5
+    def __init__(self, render_mode=None, board_size=15, n_target=1):
+        assert board_size >= 5
         assert n_target > 0
 
-        self.size = size  # The size of the square grid
+        self.board_size = board_size  # The size of the square grid
         self.window_width = 600  # The size of the PyGame window
         self.window_height = 700
         self.window_diff = self.window_height - self.window_width
         self.n_target = n_target
         # space
         self.observation_space = spaces.Box(
-            low=0, high=5, shape=(size, size), dtype=np.float32
+            low=0, high=5, shape=(board_size, board_size), dtype=np.float32
         )
         self.action_space = spaces.Discrete(4)
 
@@ -61,7 +61,7 @@ class SnakeGameEnv(gym.Env):
             3: np.array([0, -1]),
         }
 
-        self._snake_checker = np.ones((size, size), dtype=np.uint8)
+        self._snake_checker = np.ones((board_size, board_size), dtype=np.uint8)
 
         self.render_mode = render_mode
         self.window = None
@@ -71,12 +71,12 @@ class SnakeGameEnv(gym.Env):
         super().reset(seed=seed)
 
         # initialize board
-        self.board = np.ones((self.size, self.size), dtype=np.uint8)
+        self.board = np.ones((self.board_size, self.board_size), dtype=np.uint8)
 
         # initialize snake
         self.snake = deque()
         for i in range(3):
-            self.snake.appendleft(np.array([self.size // 2, self.size // 2 - i]))
+            self.snake.appendleft(np.array([self.board_size // 2, self.board_size // 2 - i]))
 
         for x, y in self.snake:
             self.board[x, y] = SNAKE_BODY
@@ -134,7 +134,7 @@ class SnakeGameEnv(gym.Env):
             next_head = current_head - direction
 
         # get out the board
-        if not (0 <= next_head[0] < self.size and 0 <= next_head[1] < self.size):
+        if not (0 <= next_head[0] < self.board_size and 0 <= next_head[1] < self.board_size):
             reward = -1
             terminated = True
 
@@ -185,8 +185,8 @@ class SnakeGameEnv(gym.Env):
             return self._render_ansi()
 
     def _render_ansi(self):
-        for r in range(self.size):
-            for c in range(self.size):
+        for r in range(self.board_size):
+            for c in range(self.board_size):
                 # snake
                 if self.board[r, c] == SNAKE_BODY:
                     print("□", end="")
@@ -200,13 +200,13 @@ class SnakeGameEnv(gym.Env):
                 elif self.board[r, c] == TARGET:
                     print("★", end="")
             print()
-        print("-" * self.size)
+        print("-" * self.board_size)
 
     def _render_frame(self):
         pygame.font.init()
         if self.window is None:
             pygame.init()
-            self.square_size = self.window_width // self.size
+            self.square_size = self.window_width // self.board_size
             self.font_size = self.window_diff // 3
             if self.render_mode == "human":
                 pygame.display.init()
@@ -238,8 +238,8 @@ class SnakeGameEnv(gym.Env):
             (self.window_width // 30 * 21, self.window_diff // 2 - self.font_size // 2),
         )
 
-        for r in range(self.size):
-            for c in range(self.size):
+        for r in range(self.board_size):
+            for c in range(self.board_size):
                 if self.board[r, c] == SNAKE_BODY:
                     pygame.draw.rect(
                         canvas,
