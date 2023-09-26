@@ -55,10 +55,10 @@ class SnakeGameEnv(gym.Env):
         self.action_space = spaces.Discrete(4)
 
         self._action_to_direction = {
-            0: np.array([1, 0]),
-            1: np.array([0, 1]),
-            2: np.array([-1, 0]),
-            3: np.array([0, -1]),
+            0: np.array([1, 0]),  # down
+            1: np.array([0, 1]),  # right
+            2: np.array([-1, 0]), # up
+            3: np.array([0, -1]), # left
         }
 
         self._snake_checker = np.ones((board_size, board_size), dtype=np.uint8)
@@ -89,6 +89,8 @@ class SnakeGameEnv(gym.Env):
 
         self._score = 0
 
+        self.prev_action = 1
+
         observation = self._get_obs()
         info = self._get_info()
 
@@ -118,7 +120,7 @@ class SnakeGameEnv(gym.Env):
         return self.board.astype(np.float32)
 
     def _get_info(self):
-        return {"snake_length": len(self.snake)}
+        return {"snake_length": len(self.snake), "prev_action": self.prev_action}
 
     def step(self, action: int):
         direction = self._action_to_direction[action]
@@ -165,6 +167,8 @@ class SnakeGameEnv(gym.Env):
 
         if self.render_mode == "human":
             self.render()
+
+        self.prev_action = action
 
         return observation, reward, terminated, False, info
 
