@@ -36,7 +36,7 @@ snake
 class SnakeGameEnv(gym.Env):
     metadata = {
         "render_modes": ["human", "rgb_array", "ansi"],
-        "render_fps": 10,
+        "render_fps": 20,
     }
 
     def __init__(self, render_mode=None, board_size=15, n_target=1):
