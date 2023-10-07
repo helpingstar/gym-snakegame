@@ -115,7 +115,6 @@ class SnakeGameEnv(gym.Env):
             reward = -1
             terminated = True
         else:
-            self.snake.append(next_head)
             # blank
             if self.board[next_head[0], next_head[1]] == self.BLANK:
                 self.board[current_tail[0], current_tail[1]] = self.BLANK
@@ -128,10 +127,12 @@ class SnakeGameEnv(gym.Env):
                 self._score += 1
                 reward = 1
                 self._place_target()
+                self.board[next_head[0], next_head[1]] = 0
                 if len(self.snake) == self.board_size ** 2:
                     terminated = True
                 else:
                     terminated = False
+            self.snake.append(next_head)
             for x, y in self.snake:
                 self.board[x][y] += 1
 
