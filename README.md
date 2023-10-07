@@ -1,5 +1,5 @@
 # gym-snakegame
-A gymnasium-based RL environment for learning the snake game.
+A [gymnasium](https://github.com/Farama-Foundation/Gymnasium)-based RL environment for learning the snake game.
 
 ![snakegame5x5](https://user-images.githubusercontent.com/54899900/225275703-646f8f42-62dd-4b0d-b527-aaf93ba6e1f7.gif)
 
@@ -43,30 +43,38 @@ for i in range(100000):
 env.close()
 ```
 ## parameter
-* `size` : The size of a square board. The board has the shape `(size, size)`.
+* `board_size` : The size of a square board. The board has the shape `(board_size, board_size)`.
 * `n_target` : The number of targets placed on a board.
 
 # Observation
 
-Observation Space : `Box(0.0, 5.0, (5, 5), float32)`
+Observation Space : `Box(0.0, board_size ** 2 + 1, (board_size, board_size), uint32)`
 
-* `0` : snake
-* `1` : blank
-* `3` : head
-* `5` : target
+* `0` : empty
+* `1 ~ board_size ** 2` : snake body
+  * `1` : head
+  * largest number : tail
+* `board_size ** 2 + 1` : target
 
-If you want to reshape an observation I recommend you use [`gymnasium.experimental.wrappers.ReshapeObservationV0`](https://gymnasium.farama.org/api/experimental/wrappers/#gymnasium.experimental.wrappers.ReshapeObservationV0).
+
+You can change the `dtype` or `shape` by using the wrapper below.
+
+* [`gymnasium.experimental.wrappers.ReshapeObservationV0`](https://gymnasium.farama.org/api/experimental/wrappers/#gymnasium.experimental.wrappers.ReshapeObservationV0).
+* [`gymnasium.experimental.wrappers.DtypeObservationV0`](https://gymnasium.farama.org/api/experimental/wrappers/#gymnasium.experimental.wrappers.DtypeObservationV0)
 
 ```python
->>> import gym_snakegame
->>> import gymnasium as gym
->>> from gymnasium.experimental.wrappers import ReshapeObservationV0
->>> env = gym.make("gym_snakegame/SnakeGame-v0", size=5, n_target=1)
->>> env.observation_space.shape
-(5, 5)
->>> env = ReshapeObservationV0(env, (1, 5, 5))
->>> env.observation_space.shape
-(1, 5, 5)
+import numpy as np
+import gymnasium as gym
+from gymnasium.experimental.wrappers import ReshapeObservationV0, DtypeObservationV0
+
+import gym_snakegame
+
+env = gym.make("gym_snakegame/SnakeGame-v0", board_size=5, n_target=1)
+# Box(0, 26, (5, 5), uint32)
+env = ReshapeObservationV0(env, (1, env.get_wrapper_attr('board_size'), env.get_wrapper_attr('board_size')))
+# Box(0, 26, (1, 5, 5), uint32)
+env = DtypeObservationV0(env, dtype=np.float32)
+# Box(0.0, 26.0, (1, 5, 5), float32)
 ```
 
 
