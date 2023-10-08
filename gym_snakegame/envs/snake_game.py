@@ -6,33 +6,6 @@ import gymnasium as gym
 from gymnasium import spaces
 
 
-# TODO : literal observation to CONST VARIABLE
-
-SNAKE_BODY = 0
-BLANK = 1
-SNAKE_HEAD = 3
-TARGET = 5
-
-"""
-[x, y]
-    x : row
-    y : column
-
-snake
-    [index]
-    head : -1
-    tail : 0
-    append : append
-    pop : popleft
-
-[value] : board
-    0 : snake
-    1 : blank
-    3 : head
-    5 : target
-"""
-
-
 class SnakeGameEnv(gym.Env):
     metadata = {
         "render_modes": ["human", "rgb_array", "ansi"],
@@ -43,6 +16,10 @@ class SnakeGameEnv(gym.Env):
         assert board_size >= 5
         assert n_target > 0
 
+        self.BLANK = 0
+        self.ITEM = board_size ** 2 + 1
+        self.HEAD = 1
+
         self.board_size = board_size  # The size of the square grid
         self.window_width = 600  # The size of the PyGame window
         self.window_height = 700
@@ -50,7 +27,7 @@ class SnakeGameEnv(gym.Env):
         self.n_target = n_target
         # space
         self.observation_space = spaces.Box(
-            low=0, high=5, shape=(board_size, board_size), dtype=np.float32
+            low=0, high=self.ITEM, shape=(board_size, board_size), dtype=np.uint32
         )
         self.action_space = spaces.Discrete(4)
 
@@ -61,8 +38,6 @@ class SnakeGameEnv(gym.Env):
             3: np.array([0, -1]), # left
         }
 
-        self._snake_checker = np.ones((board_size, board_size), dtype=np.uint8)
-
         self.render_mode = render_mode
         self.window = None
         self.clock = None
@@ -71,24 +46,20 @@ class SnakeGameEnv(gym.Env):
         super().reset(seed=seed)
 
         # initialize board
-        self.board = np.ones((self.board_size, self.board_size), dtype=np.uint8)
+        self.board = np.zeros((self.board_size, self.board_size), dtype=np.uint32)
 
         # initialize snake
         self.snake = deque()
         for i in range(3):
             self.snake.appendleft(np.array([self.board_size // 2, self.board_size // 2 - i]))
-
-        for x, y in self.snake:
-            self.board[x, y] = SNAKE_BODY
-        self.board[self.snake[-1][0], self.snake[-1][1]] = SNAKE_HEAD
+        for i, (x, y) in enumerate(self.snake):
+            self.board[x, y] = len(self.snake) - i
 
         self._place_target(initial=True)
 
         # update iteration
         self._n_step = 0
-
         self._score = 0
-
         self.prev_action = 1
 
         observation = self._get_obs()
@@ -100,13 +71,13 @@ class SnakeGameEnv(gym.Env):
         return observation, info
 
     def _place_target(self, initial: bool = False) -> None:
-        target_candidate = np.argwhere(self.board == 1)
+        target_candidate = np.argwhere(self.board == self.BLANK)
         if initial:
             target_list = target_candidate[
                 self.np_random.choice(len(target_candidate), self.n_target)
             ]
             for x, y in target_list:
-                self.board[x, y] = TARGET
+                self.board[x, y] = self.ITEM
         else:
             if target_candidate.size == 0:
                 return
@@ -114,10 +85,10 @@ class SnakeGameEnv(gym.Env):
                 new_target = target_candidate[
                     self.np_random.choice(len(target_candidate))
                 ]
-                self.board[new_target[0], new_target[1]] = TARGET
+                self.board[new_target[0], new_target[1]] = self.ITEM
 
     def _get_obs(self):
-        return self.board.astype(np.float32)
+        return self.board
 
     def _get_info(self):
         return {"snake_length": len(self.snake), "prev_action": self.prev_action}
@@ -139,28 +110,31 @@ class SnakeGameEnv(gym.Env):
         if not (0 <= next_head[0] < self.board_size and 0 <= next_head[1] < self.board_size):
             reward = -1
             terminated = True
-
         # hit the snake
-        elif self.board[next_head[0], next_head[1]] == 0:
+        elif (0 < self.board[next_head[0], next_head[1]] < self.ITEM):
             reward = -1
             terminated = True
         else:
             # blank
-            if self.board[next_head[0], next_head[1]] == 1:
-                self.board[current_tail[0], current_tail[1]] = 1
+            if self.board[next_head[0], next_head[1]] == self.BLANK:
+                self.board[current_tail[0], current_tail[1]] = self.BLANK
                 self.snake.popleft()
                 reward = 0
                 terminated = False
             # target
-            # self.board[next_head[0], next_head[1]] == 5
+            # self.board[next_head[0], next_head[1]] == self.ITEM
             else:
                 self._score += 1
                 reward = 1
                 self._place_target()
-                terminated = False
+                self.board[next_head[0], next_head[1]] = 0
+                if len(self.snake) == self.board_size ** 2:
+                    terminated = True
+                else:
+                    terminated = False
             self.snake.append(next_head)
-            self.board[current_head[0], current_head[1]] = SNAKE_BODY
-            self.board[next_head[0], next_head[1]] = SNAKE_HEAD
+            for x, y in self.snake:
+                self.board[x][y] += 1
 
         observation = self._get_obs()
         info = self._get_info()
@@ -184,27 +158,6 @@ class SnakeGameEnv(gym.Env):
 
         if self.render_mode in {"rgb_array", "human"}:
             return self._render_frame()
-
-        if self.render_mode == "ansi":
-            return self._render_ansi()
-
-    def _render_ansi(self):
-        for r in range(self.board_size):
-            for c in range(self.board_size):
-                # snake
-                if self.board[r, c] == SNAKE_BODY:
-                    print("□", end="")
-                # blank
-                elif self.board[r, c] == BLANK:
-                    print("0", end="")
-                # head
-                elif self.board[r, c] == SNAKE_HEAD:
-                    print("■", end="")
-                # target
-                elif self.board[r, c] == TARGET:
-                    print("★", end="")
-            print()
-        print("-" * self.board_size)
 
     def _render_frame(self):
         pygame.font.init()
@@ -244,19 +197,7 @@ class SnakeGameEnv(gym.Env):
 
         for r in range(self.board_size):
             for c in range(self.board_size):
-                if self.board[r, c] == SNAKE_BODY:
-                    pygame.draw.rect(
-                        canvas,
-                        (255, 255, 255),
-                        pygame.Rect(
-                            self.square_size * c,
-                            self.window_diff + self.square_size * r,
-                            self.square_size,
-                            self.square_size,
-                        ),
-                    )
-                # blank
-                elif self.board[r, c] == BLANK:
+                if self.board[r, c] == self.BLANK:
                     pygame.draw.rect(
                         canvas,
                         (200, 200, 200),
@@ -269,7 +210,7 @@ class SnakeGameEnv(gym.Env):
                         1,
                     )
                 # head
-                elif self.board[r, c] == SNAKE_HEAD:
+                elif self.board[r, c] == self.HEAD:
                     pygame.draw.rect(
                         canvas,
                         (255, 0, 0),
@@ -280,8 +221,7 @@ class SnakeGameEnv(gym.Env):
                             self.square_size,
                         ),
                     )
-                # self.board[r, c] == 5:
-                else:
+                elif self.board[r, c] == self.ITEM:
                     pygame.draw.rect(
                         canvas,
                         (0, 255, 0),
@@ -292,6 +232,19 @@ class SnakeGameEnv(gym.Env):
                             self.square_size,
                         ),
                     )
+                # body
+                else:
+                    pygame.draw.rect(
+                        canvas,
+                        (255, 255, 255),
+                        pygame.Rect(
+                            self.square_size * c,
+                            self.window_diff + self.square_size * r,
+                            self.square_size,
+                            self.square_size,
+                        ),
+                    )
+                # blank
 
         if self.render_mode == "human":
             # The following line copies our drawings from `canvas` to the visible window
