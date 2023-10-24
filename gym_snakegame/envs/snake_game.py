@@ -20,6 +20,8 @@ class SnakeGameEnv(gym.Env):
         self.ITEM = board_size ** 2 + 1
         self.HEAD = 1
 
+        self.color_gradient = (255 - 100) / (board_size ** 2)
+
         self.board_size = board_size  # The size of the square grid
         self.window_width = 600  # The size of the PyGame window
         self.window_height = 700
@@ -159,6 +161,10 @@ class SnakeGameEnv(gym.Env):
         if self.render_mode in {"rgb_array", "human"}:
             return self._render_frame()
 
+    def get_body_color(self, r: int, c: int):
+        color = 255 - self.color_gradient * self.board[r][c]
+        return (color, color, color)
+
     def _render_frame(self):
         pygame.font.init()
         if self.window is None:
@@ -236,7 +242,7 @@ class SnakeGameEnv(gym.Env):
                 else:
                     pygame.draw.rect(
                         canvas,
-                        (255, 255, 255),
+                        self.get_body_color(r, c),
                         pygame.Rect(
                             self.square_size * c,
                             self.window_diff + self.square_size * r,
