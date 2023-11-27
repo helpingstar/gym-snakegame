@@ -12,13 +12,15 @@ class SnakeGameEnv(gym.Env):
         "render_fps": 20,
     }
 
-    def __init__(self, render_mode=None, board_size=15, n_target=1):
+    def __init__(self, render_mode=None, n_channel=1, board_size=15, n_target=1):
         assert board_size >= 5
         assert n_target > 0
+        assert n_channel in (1, 2, 4)
 
         self.BLANK = 0
         self.ITEM = board_size ** 2 + 1
         self.HEAD = 1
+        self.n_channel = n_channel
 
         self.color_gradient = (255 - 100) / (board_size ** 2)
 
@@ -29,7 +31,7 @@ class SnakeGameEnv(gym.Env):
         self.n_target = n_target
         # space
         self.observation_space = spaces.Box(
-            low=0, high=self.ITEM, shape=(board_size, board_size), dtype=np.uint32
+            low=0, high=self.ITEM, shape=(self.n_channel, board_size, board_size), dtype=np.uint32
         )
         self.action_space = spaces.Discrete(4)
 
@@ -90,7 +92,33 @@ class SnakeGameEnv(gym.Env):
                 self.board[new_target[0], new_target[1]] = self.ITEM
 
     def _get_obs(self):
-        return self.board
+        if self.n_channel == 1:
+            return self.board
+        else:
+            return self._split_channel(self.n_channel)
+
+    def _split_channel(self, n_channel):
+        if n_channel == 2:
+            mask = (self.board == self.ITEM)
+            snake_obs = np.where(mask, 0, self.board)
+            target_obs = np.where(mask, self.board, 0)
+            return np.array([snake_obs, target_obs])
+        # n_channel == 4
+        else:
+            channels = []
+            # body
+            mask = (1 < self.board) & (self.board < len(self.snake))
+            channel = np.where(mask, self.board, 0)
+            channels.append(channel)
+        
+            # head, tail, target
+            without_body = (1, len(self.snake), self.ITEM)
+            for element in without_body:
+                mask = (self.board == element)
+                channel = np.where(mask, self.board, 0)
+                channels.append(channel)
+            
+            return np.array(channels)
 
     def _get_info(self):
         return {"snake_length": len(self.snake), "prev_action": self.prev_action}
