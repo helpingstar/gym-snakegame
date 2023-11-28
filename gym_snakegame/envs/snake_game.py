@@ -18,11 +18,11 @@ class SnakeGameEnv(gym.Env):
         assert n_channel in (1, 2, 4)
 
         self.BLANK = 0
-        self.ITEM = board_size ** 2 + 1
+        self.ITEM = board_size**2 + 1
         self.HEAD = 1
         self.n_channel = n_channel
 
-        self.color_gradient = (255 - 100) / (board_size ** 2)
+        self.color_gradient = (255 - 100) / (board_size**2)
 
         self.board_size = board_size  # The size of the square grid
         self.window_width = 600  # The size of the PyGame window
@@ -31,15 +31,18 @@ class SnakeGameEnv(gym.Env):
         self.n_target = n_target
         # space
         self.observation_space = spaces.Box(
-            low=0, high=self.ITEM, shape=(self.n_channel, board_size, board_size), dtype=np.uint32
+            low=0,
+            high=self.ITEM,
+            shape=(self.n_channel, board_size, board_size),
+            dtype=np.uint32,
         )
         self.action_space = spaces.Discrete(4)
 
         self._action_to_direction = {
             0: np.array([1, 0]),  # down
             1: np.array([0, 1]),  # right
-            2: np.array([-1, 0]), # up
-            3: np.array([0, -1]), # left
+            2: np.array([-1, 0]),  # up
+            3: np.array([0, -1]),  # left
         }
 
         self.render_mode = render_mode
@@ -55,7 +58,9 @@ class SnakeGameEnv(gym.Env):
         # initialize snake
         self.snake = deque()
         for i in range(3):
-            self.snake.appendleft(np.array([self.board_size // 2, self.board_size // 2 - i]))
+            self.snake.appendleft(
+                np.array([self.board_size // 2, self.board_size // 2 - i])
+            )
         for i, (x, y) in enumerate(self.snake):
             self.board[x, y] = len(self.snake) - i
 
@@ -99,7 +104,7 @@ class SnakeGameEnv(gym.Env):
 
     def _split_channel(self, n_channel):
         if n_channel == 2:
-            mask = (self.board == self.ITEM)
+            mask = self.board == self.ITEM
             snake_obs = np.where(mask, 0, self.board)
             target_obs = np.where(mask, self.board, 0)
             return np.array([snake_obs, target_obs])
@@ -110,14 +115,14 @@ class SnakeGameEnv(gym.Env):
             mask = (1 < self.board) & (self.board < len(self.snake))
             channel = np.where(mask, self.board, 0)
             channels.append(channel)
-        
+
             # head, tail, target
             without_body = (1, len(self.snake), self.ITEM)
             for element in without_body:
-                mask = (self.board == element)
+                mask = self.board == element
                 channel = np.where(mask, self.board, 0)
                 channels.append(channel)
-            
+
             return np.array(channels)
 
     def _get_info(self):
@@ -137,11 +142,13 @@ class SnakeGameEnv(gym.Env):
             next_head = current_head - direction
 
         # get out the board
-        if not (0 <= next_head[0] < self.board_size and 0 <= next_head[1] < self.board_size):
+        if not (
+            0 <= next_head[0] < self.board_size and 0 <= next_head[1] < self.board_size
+        ):
             reward = -1
             terminated = True
         # hit the snake
-        elif (0 < self.board[next_head[0], next_head[1]] < self.ITEM):
+        elif 0 < self.board[next_head[0], next_head[1]] < self.ITEM:
             reward = -1
             terminated = True
         else:
@@ -158,7 +165,7 @@ class SnakeGameEnv(gym.Env):
                 reward = 1
                 self._place_target()
                 self.board[next_head[0], next_head[1]] = 0
-                if len(self.snake) == self.board_size ** 2:
+                if len(self.snake) == self.board_size**2:
                     terminated = True
                 else:
                     terminated = False
