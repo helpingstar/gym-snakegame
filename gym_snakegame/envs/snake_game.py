@@ -98,7 +98,7 @@ class SnakeGameEnv(gym.Env):
 
     def _get_obs(self):
         if self.n_channel == 1:
-            return self.board
+            return self.board[np.newaxis, :, :]
         else:
             return self._split_channel(self.n_channel)
 
