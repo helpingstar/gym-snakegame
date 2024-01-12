@@ -1,7 +1,11 @@
 # gym-snakegame
 A [gymnasium](https://github.com/Farama-Foundation/Gymnasium)-based RL environment for learning the snake game.
 
-![snakegame5x5](https://user-images.githubusercontent.com/54899900/225275703-646f8f42-62dd-4b0d-b527-aaf93ba6e1f7.gif)
+
+
+https://github.com/helpingstar/gym-snakegame/assets/54899900/4eca0135-ec4b-4a07-9815-51c1d3df1823
+
+
 
 You can make a game with a grid size larger than 5x5.
 
