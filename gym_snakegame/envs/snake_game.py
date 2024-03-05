@@ -37,13 +37,10 @@ class SnakeGameEnv(gym.Env):
             dtype=np.uint32,
         )
         self.action_space = spaces.Discrete(4)
-
-        self._action_to_direction = {
-            0: np.array([1, 0]),  # down
-            1: np.array([0, 1]),  # right
-            2: np.array([-1, 0]),  # up
-            3: np.array([0, -1]),  # left
-        }
+        self._action_to_direction = np.array([[1, 0], [0, 1], [-1, 0], [0, -1]])
+        # initialzie
+        self.snake = deque()
+        self.board = np.zeros((self.board_size, self.board_size), dtype=np.uint32)
 
         self.render_mode = render_mode
         self.window = None
@@ -51,16 +48,11 @@ class SnakeGameEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-
-        # initialize board
-        self.board = np.zeros((self.board_size, self.board_size), dtype=np.uint32)
-
-        # initialize snake
-        self.snake = deque()
+        # reset
+        self.board.fill(0)
+        self.snake.clear()
         for i in range(3):
-            self.snake.appendleft(
-                np.array([self.board_size // 2, self.board_size // 2 - i])
-            )
+            self.snake.appendleft(np.array([self.board_size // 2, self.board_size // 2 - i]))
         for i, (x, y) in enumerate(self.snake):
             self.board[x, y] = len(self.snake) - i
 
@@ -82,18 +74,14 @@ class SnakeGameEnv(gym.Env):
     def _place_target(self, initial: bool = False) -> None:
         target_candidate = np.argwhere(self.board == self.BLANK)
         if initial:
-            target_list = target_candidate[
-                self.np_random.choice(len(target_candidate), self.n_target)
-            ]
+            target_list = target_candidate[self.np_random.choice(len(target_candidate), self.n_target)]
             for x, y in target_list:
                 self.board[x, y] = self.ITEM
         else:
             if target_candidate.size == 0:
                 return
             else:
-                new_target = target_candidate[
-                    self.np_random.choice(len(target_candidate))
-                ]
+                new_target = target_candidate[self.np_random.choice(len(target_candidate))]
                 self.board[new_target[0], new_target[1]] = self.ITEM
 
     def _get_obs(self):
@@ -142,9 +130,7 @@ class SnakeGameEnv(gym.Env):
             next_head = current_head - direction
 
         # get out the board
-        if not (
-            0 <= next_head[0] < self.board_size and 0 <= next_head[1] < self.board_size
-        ):
+        if not (0 <= next_head[0] < self.board_size and 0 <= next_head[1] < self.board_size):
             reward = -1
             terminated = True
         # hit the snake
@@ -208,9 +194,7 @@ class SnakeGameEnv(gym.Env):
             self.font_size = self.window_diff // 3
             if self.render_mode == "human":
                 pygame.display.init()
-                self.window = pygame.display.set_mode(
-                    (self.window_width, self.window_height)
-                )
+                self.window = pygame.display.set_mode((self.window_width, self.window_height))
             else:
                 self.window = pygame.Surface((self.window_width, self.window_height))
 
@@ -220,12 +204,8 @@ class SnakeGameEnv(gym.Env):
         canvas = pygame.Surface((self.window_width, self.window_height))
         canvas.fill((0, 0, 0))
         myFont = pygame.font.SysFont("consolas", self.font_size, bold=True)
-        score_render_text = myFont.render(
-            f"score: {self._score}", True, (255, 255, 255)
-        )
-        n_step_render_text = myFont.render(
-            f"step: {self._n_step}", True, (255, 255, 255)
-        )
+        score_render_text = myFont.render(f"score: {self._score}", True, (255, 255, 255))
+        n_step_render_text = myFont.render(f"step: {self._n_step}", True, (255, 255, 255))
 
         canvas.blit(
             score_render_text,
@@ -297,9 +277,7 @@ class SnakeGameEnv(gym.Env):
             # The following line will automatically add a delay to keep the framerate stable.
             self.clock.tick(self.metadata["render_fps"])
         else:  # rgb_array
-            return np.transpose(
-                np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2)
-            )
+            return np.transpose(np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2))
 
     def close(self):
         if self.window is not None:
