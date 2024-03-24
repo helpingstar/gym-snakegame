@@ -21,15 +21,6 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-## Colab
-
-```bash
-!git clone https://github.com/helpingstar/gym-snakegame.git
-%cd gym-snakegame
-!pip install -r requirements.txt
-!pip install -e .
-```
-
 # Usage
 ```python
 import gym_snakegame
@@ -73,27 +64,6 @@ Observation Space : `Box(0.0, board_size ** 2 + 1, (n_channel, board_size, board
   * `1` : head
   * largest number : tail
 * `board_size ** 2 + 1` : target
-
-
-You can change the `dtype` or `shape` by using the wrapper below.
-
-* [`gymnasium.experimental.wrappers.ReshapeObservationV0`](https://gymnasium.farama.org/api/experimental/wrappers/#gymnasium.experimental.wrappers.ReshapeObservationV0).
-* [`gymnasium.experimental.wrappers.DtypeObservationV0`](https://gymnasium.farama.org/api/experimental/wrappers/#gymnasium.experimental.wrappers.DtypeObservationV0)
-
-```python
-import numpy as np
-import gymnasium as gym
-from gymnasium.experimental.wrappers import DtypeObservationV0
-
-import gym_snakegame
-
-env = gym.make("gym_snakegame/SnakeGame-v0", board_size=5, n_target=1)
-# Box(0, 26, (1, 5, 5), uint32)
-env = DtypeObservationV0(env, dtype=np.float32)
-# Box(0.0, 26.0, (1, 5, 5), float32)
-print(env.observation_space)
-```
-
 
 # Action
 
