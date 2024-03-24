@@ -17,7 +17,6 @@ You can make a game with a grid size larger than 5x5.
 ```bash
 git clone https://github.com/helpingstar/gym-snakegame.git
 cd gym-snakegame
-pip install -r requirements.txt
 pip install -e .
 ```
 
