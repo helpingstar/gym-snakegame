@@ -3,7 +3,7 @@ import numpy as np
 
 
 class RewardConverter(gym.RewardWrapper):
-    def __init__(self, env, moving_reward = 0):
+    def __init__(self, env, moving_reward=0):
         super().__init__(env)
         self.moving_reward = moving_reward
 
